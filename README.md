@@ -79,4 +79,12 @@ To retrain the models locally:
 ```bash
 python train_model.py
 ```
+This script trains the recommendation models using the MovieLens dataset and saves the trained model files to the `models/` directory.
+
+## Dataset Sources
+
+The project uses publicly available datasets for training the recommendation models.
+
+- MovieLens Dataset (GroupLens Research): https://grouplens.org/datasets/movielens/  
+- Spotify Tracks Dataset (Kaggle): https://www.kaggle.com/datasets/maharshipandya/-spotify-tracks-dataset
 
