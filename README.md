@@ -64,3 +64,18 @@ Run the streamlit application:
 streamlit run app.py
 ```
 
+---
+
+# Model Training Section (for `train_model.py`)
+
+```markdown
+## Model Training
+
+The recommendation models were trained using the MovieLens dataset.
+
+To retrain the models locally:
+
+```bash
+python train_model.py
+```
+
