@@ -68,7 +68,7 @@ streamlit run app.py
 
 ## Model Training Section (for `train_model.py`)
 
-##Model Training
+## Model Training
 
 The recommendation models were trained using the MovieLens dataset.
 
