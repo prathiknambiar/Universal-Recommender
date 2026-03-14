@@ -1,12 +1,11 @@
 import pickle
 import pandas as pd
+from sklearn.metrics.pairwise import cosine_similarity
 
 movies = pd.read_csv("data/movielens/movie.csv")
 
-with open("models/similarity.pkl", "rb") as f:
-    similarity = pickle.load(f)
-with open("models/similaritySVD.pkl", "rb") as f:
-    similaritySVD = pickle.load(f)
+with open("models/latent_matrix.pkl", "rb") as f:
+    latent_matrix = pickle.load(f)
 with open("models/movie_indices.pkl", "rb") as f:
     movie_indices = pickle.load(f)
 with open("models/title_to_id.pkl", "rb") as f:
@@ -15,12 +14,12 @@ with open("models/movie_matrix_index.pkl", "rb") as f:
     movie_index = pickle.load(f)
 with open("models/genre_indices.pkl", "rb") as f:
     genre_indices = pickle.load(f)
-with open("models/genre_similarity.pkl", "rb") as f:
-    genre_similarity = pickle.load(f)
-with open("models/tag_similarity.pkl","rb") as f:
-    tag_similarity = pickle.load(f)
 with open("models/tag_indices.pkl","rb") as f:
     tag_indices = pickle.load(f)
+with open("models/genre_matrix.pkl", "rb") as f:
+    genre_matrix = pickle.load(f)
+with open("models/tag_matrix.pkl", "rb") as f:
+    tag_matrix = pickle.load(f)
 
 id_to_title = dict(zip(movies["movieId"], movies["title"]))
 
@@ -33,25 +32,28 @@ def recommend(movie_title):
     idx = movie_indices[movie_id]
     genre_idx = genre_indices[movie_id]
     tag_idx = tag_indices[movie_id]
-    scores = list(enumerate(similarity[idx]))
-    scores = sorted(scores, key=lambda x: x[1], reverse=True)
+    scores = cosine_similarity(
+        latent_matrix[idx].reshape(1, -1),
+        latent_matrix
+        ).flatten()
+    genre_scores = cosine_similarity(
+        genre_matrix[genre_idx],
+        genre_matrix
+    ).flatten()
 
-    top_movies = scores[1:80]
+    tag_scores = cosine_similarity(
+        tag_matrix[tag_idx],
+        tag_matrix
+    ).flatten()
+    top_movies = list(enumerate(scores))
+    top_movies = sorted(top_movies, key=lambda x: x[1], reverse=True)[1:80]
 
     reranked = []
     for i, _ in top_movies:
-
-        svd_score = similaritySVD[idx][i]
-        cos_score = similarity[idx][i]
-        movie_id_candidate = movie_index[i]
-        genre_score = genre_similarity[genre_idx][genre_indices[movie_id_candidate]]
-        tag_score = tag_similarity[tag_idx][tag_indices[movie_id_candidate]]
-
         final_score = (
-            0.25 * cos_score +
-            0.25 * svd_score +
-            0.25 * genre_score+
-            0.25 * tag_score
+            0.5 * scores[i] +
+            0.25 * tag_scores[i]+
+            0.25 * genre_scores[i] 
         )
 
         reranked.append((i, final_score))
